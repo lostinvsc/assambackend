@@ -1,6 +1,6 @@
 import React from "react";
-import { FaBars, FaTimes } from "react-icons/fa";
-import ClientMenu from "../Components/ClientMenu";
+
+
 import { FaPlusCircle, FaClock, FaClipboardList } from "react-icons/fa";
 
 const Home = () => {
@@ -45,7 +45,7 @@ const Home = () => {
 
 // Define an interface for FeatureCard props
 interface FeatureCardProps {
-  icon: any;   // The icon should be a JSX element
+  icon:  React.ReactNode;   // The icon should be a JSX element
   title: string;       // The title should be a string
   description: string; // The description should be a string
   buttonText: string;  // The button text should be a string
