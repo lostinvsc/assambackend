@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
-import { createUser } from "@/controllers/user";
+import { requestOtp } from "@/controllers/signup";
 
 export async function POST(req: NextRequest) {
-  return createUser(req);
+  return requestOtp(req);
 }

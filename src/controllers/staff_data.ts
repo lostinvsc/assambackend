@@ -18,30 +18,30 @@ export const createStaff = async (req: Request): Promise<NextResponse> => {
     }
 
     await connectDB();
-    const { phoneNumber, username, password } = await req.json();
+    const { phone } = await req.json();
 
     // Validation
-    if (!phoneNumber || !username || !password) {
+    if (!phone) {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: "phone Number required" },
         { status: 400, headers: corsHeaders }
       );
     }
 
     // Check if phone number or username already exists
     const existingStaff = await Staff.findOne({
-      $or: [{ phoneNumber }, { username }],
+       phone
     });
 
     if (existingStaff) {
       return NextResponse.json(
-        { error: "Mobile number or username already exists" },
+        { error: "Mobile number already exists" },
         { status: 409, headers: corsHeaders }
       );
     }
 
     // Create new staff
-    const newStaff = await Staff.create({ phoneNumber, username, password });
+    const newStaff = await Staff.create({ phone });
 
     return NextResponse.json(
       { message: "Staff created successfully", data: newStaff },

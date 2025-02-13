@@ -2,14 +2,14 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 // Interface for TypeScript
 interface IData extends Document {
-  phoneNumber: string;
+  phone: string;
   signed_up: boolean;
 }
 
 
 const DataSchema = new Schema<IData>(
   {
-    phoneNumber: {
+    phone: {
       type: String,
       required: true,
       unique: true,

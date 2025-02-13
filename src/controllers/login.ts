@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/user";
 import twilio from "twilio";
+import Redis from "ioredis";
 
-// Twilio Setup 
-const accountSid = process.env.TWILIO_ACCOUNT_SID!;
-const authToken = process.env.TWILIO_AUTH_TOKEN!;
-const twilioClient = twilio(accountSid, authToken);
+const redis = new Redis(process.env.REDIS_URL||"redis://localhost:6379");
+
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // Generate a random 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -18,7 +18,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-export const loginUser = async (req: Request): Promise<NextResponse> => {
+export const loginPhone = async (req: Request): Promise<NextResponse> => {
   try {
     // Handle CORS preflight request
     if (req.method === "OPTIONS") {
@@ -26,51 +26,37 @@ export const loginUser = async (req: Request): Promise<NextResponse> => {
     }
 
     await connectDB();
-    const { phoneNumber, username, password } = await req.json();
-    const mobileNumber = phoneNumber;
+    const { phone } = await req.json();
+
 
     // Case 1: Login via OTP (Phone Number)
-    if (mobileNumber) {
-      const user = await User.findOne({ mobileNumber });
+    if (phone) {
+      const user = await User.findOne({ phone });
       if (!user) {
         return NextResponse.json({ error: "User not found" }, { status: 404, headers: corsHeaders });
       }
 
       // Generate and send OTP
-      const generatedOTP = generateOTP();
-      await twilioClient.messages.create({
-        body: `Your OTP for login is: ${generatedOTP}`,
-        messagingServiceSid: "MG5121cf9ca4ba837b88a363fe629a89e4",
-        to: `+91${mobileNumber}`,
+      const otp = generateOTP();
+
+      const formattedPhone = `+91${phone}`;
+      await redis.setex(formattedPhone, 300, otp);
+      await client.messages.create({
+        body: `Your OTP code is: ${otp}`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: formattedPhone,
       });
 
-      console.log(generatedOTP);
+      // console.log(otp)
 
       return NextResponse.json(
-        { message: "OTP sent to your phone number", otp: generatedOTP, user },
-        { status: 200, headers: corsHeaders }
-      );
-    }
-
-    // Case 2: Login via Username & Password
-    if (username && password) {
-      const user = await User.findOne({ username });
-      if (!user) {
-        return NextResponse.json({ error: "User not found" }, { status: 404, headers: corsHeaders });
-      }
-
-      if (user.password !== password) {
-        return NextResponse.json({ error: "Incorrect password" }, { status: 401, headers: corsHeaders });
-      }
-
-      return NextResponse.json(
-        { message: "Login successful via username & password", user },
+        { message: "OTP sent to your phone number",phone,otp },
         { status: 200, headers: corsHeaders }
       );
     }
 
     return NextResponse.json(
-      { error: "Invalid request. Provide either mobileNumber or username & password." },
+      { error: "Invalid request. Provide either phone or username & password." },
       { status: 400, headers: corsHeaders }
     );
 
@@ -78,3 +64,59 @@ export const loginUser = async (req: Request): Promise<NextResponse> => {
     return NextResponse.json({ error: "Internal Server Error", details: error }, { status: 500, headers: corsHeaders });
   }
 };
+
+
+const handleOptionsRequest = () => new NextResponse(null, { status: 204, headers: corsHeaders });
+
+export const verifyPhone = async (req: Request) => {
+  if (req.method === "OPTIONS") return handleOptionsRequest();
+  try {
+    const { phone, otp } = await req.json();
+
+    const formattedPhone = `+91${phone}`;
+ 
+
+    if (!phone || !otp) return NextResponse.json({ message: "Phone and OTP are required" }, { status: 400, headers: corsHeaders });
+    const storedOTP = await redis.get(formattedPhone);
+
+    if ( storedOTP == otp) {
+      
+      const token = `token-${formattedPhone}-${Date.now()}`;
+
+    const user=await User.findOne({phone});
+    if(user){
+      return NextResponse.json({ message: "OTP verified successfully! Signup complete.",token,user:user }, { status: 200, headers: corsHeaders });
+    }
+    return NextResponse.json({ message: "User doesnt exist" }, { status: 400, headers: corsHeaders });
+
+    }
+
+    return NextResponse.json({ message: "Invalid OTP" }, { status: 400, headers: corsHeaders });
+  } catch (error) {
+    return NextResponse.json({ message: `Error verifying OTP` }, { status: 500, headers: corsHeaders });
+  }
+};
+
+
+export const credentialsLogin = async (req: Request) => {
+  if (req.method === "OPTIONS") return handleOptionsRequest();
+  try {
+    const { username,password } = await req.json();
+
+
+ 
+const user=await User.findOne({username,password});
+    
+
+   
+    if(user){
+      return NextResponse.json({ message: "Login success",user:user }, { status: 200, headers: corsHeaders });
+    }
+    
+    return NextResponse.json({ message:"Invalid credentials" }, { status: 200, headers: corsHeaders });
+    
+  } catch (error) {
+    return NextResponse.json({ message: `Error` }, { status: 500, headers: corsHeaders });
+  }
+};
+

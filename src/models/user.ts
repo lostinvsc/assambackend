@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 
 interface IUser extends Document {
-  mobileNumber: string;
+  phone: string;
   username: string;
   password: string;
 }
@@ -10,7 +10,7 @@ interface IUser extends Document {
 // Mongoose Schema
 const UserSchema = new Schema<IUser>(
   {
-    mobileNumber: {
+    phone: {
       type: String,
       required: true,
       unique: true,
