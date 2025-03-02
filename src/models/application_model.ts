@@ -28,8 +28,8 @@ interface IApplication extends Document {
   address: string;
   category: CategoryType;
   area: AreaType;
-  remarks: string;
-  documenturl: string;
+  remarks?: string;
+  documenturl?: string;
   status: StatusType;
   notification: boolean;
 }
@@ -42,7 +42,6 @@ const ApplicationSchema = new Schema<IApplication>(
     phoneNo: { 
       type: String, 
       required: true, 
-      unique: true, 
       match: [/^\d{10}$/, "Invalid phone number format (must be 10 digits)"] 
     },
     gender: { type: String, required: true, enum: ["Male", "Female", "Other"] },
@@ -50,15 +49,17 @@ const ApplicationSchema = new Schema<IApplication>(
     address: { type: String, required: true },
     category: { type: String, required: true, enum: CATEGORY_OPTIONS },
     area: { type: String, required: true, enum: ["Village", "Town", "Tehsil", "Development Block"] },
-    remarks: { type: String },
+    remarks: { type: String, required: false },  // Explicitly set as optional
     documenturl: { 
       type: String,
+      required: false, // Explicitly set as optional
       validate: {
         validator: function (v: string) {
-          return /^(https?:\/\/.*\.(?:png|jpg|jpeg|pdf|docx?))$/i.test(v);
+          return !v || /^(https?:\/\/.*\.(?:png|jpg|jpeg|pdf|docx?))$/i.test(v); 
         },
         message: "Invalid document URL format",
       },
+      default: "",
     },
     status: { type: String, enum: STATUS_OPTIONS, default: "Pending" },
     notification: { type: Boolean, default: true },

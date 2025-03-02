@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://admin:pass@cluster0.0sets.mongodb.net/";
 
-const MONGO_URI = process.env.MONGO_URI||"mongodb://localhost:27017/office";
 
 export const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;

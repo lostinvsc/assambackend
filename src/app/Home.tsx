@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link"; // Import Link
 
 
 import { FaPlusCircle, FaClock, FaClipboardList } from "react-icons/fa";
@@ -20,18 +21,24 @@ const Home = () => {
 
       {/* Features Section */}
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 my-12 px-6">
-        <FeatureCard
-          icon={<FaPlusCircle size={32} className="text-teal-600" />}
-          title="New Application"
-          description="Add a new application and track progress easily."
-          buttonText="Click to add"
-        />
+      
+<Link href="/add">
+  <FeatureCard
+    icon={<FaPlusCircle size={32} className="text-teal-600" />}
+    title="New Application"
+    description="Add a new application and track progress easily."
+    buttonText="Click to add"
+  />
+</Link>
+<Link href="/viewapp">
+
         <FeatureCard
           icon={<FaClock size={32} className="text-teal-600" />}
           title="Application Status"
           description="Check the current status of your application."
           buttonText="Click to check"
-        />
+        /></Link>
+
         <FeatureCard
           icon={<FaClipboardList size={32} className="text-teal-600" />}
           title="Summary"

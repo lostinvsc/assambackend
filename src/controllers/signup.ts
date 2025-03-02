@@ -5,9 +5,9 @@ import Staff from "@/models/staff_data";
 import { NextResponse } from "next/server";
 import twilio from "twilio";
 import User from "@/models/user";
-import Redis from "ioredis";
+// import Redis from "ioredis";
 
-const redis = new Redis(process.env.REDIS_URL||"redis://localhost:6379");
+// const redis = new Redis(process.env.REDIS_URL||"redis://localhost:6379");
 
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -65,18 +65,18 @@ export const requestOtp = async (req: Request): Promise<NextResponse> => {
     const otp = generateOTP();
 
     const formattedPhone = `+91${phone}`;
-    
-    await redis.setex(formattedPhone, 300, otp);
+    console.log(otp)
+    // await redis.setex(formattedPhone, 300, otp);
 
     // Send OTP via Twilio
 
-    await client.messages.create({
-      body: `Your OTP code is: ${otp}`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: formattedPhone,
-    });
+    // await client.messages.create({
+    //   body: `Your OTP code is: ${otp}`,
+    //   from: process.env.TWILIO_PHONE_NUMBER,
+    //   to: formattedPhone,
+    // });
   
-    console.log(otp)
+    // console.log(otp)
 
     return NextResponse.json(
       { message: "OTP sent successfully" },
@@ -104,18 +104,23 @@ export const verifyOTP = async (req: Request) => {
     if (!phone || !otp) return NextResponse.json({ message: "Phone and OTP are required" }, { status: 400, headers: corsHeaders });
  
   
-    const storedOTP = await redis.get(formattedPhone);
+    // const storedOTP = await redis.get(formattedPhone);
     // console.log("verified otp is :", storedOTP);
-        if (storedOTP == otp) {
 
-      const token = `token-${formattedPhone}-${Date.now()}`;
+        // if (storedOTP == otp) {
+
+console.log(phone,otp,username,password)
+
+      // const token = `token-${formattedPhone}-${Date.now()}`;
 
       const user=await User.create({phone,username,password})
-     await Staff.findOneAndUpdate({phone},{signed_up:true});
-      return NextResponse.json({ message: "OTP verified successfully! Signup complete.",token,user:user }, { status: 200, headers: corsHeaders });
-    }
 
-    return NextResponse.json({ message: "Invalid OTP" }, { status: 400, headers: corsHeaders });
+     await Staff.findOneAndUpdate({phone},{signed_up:true});
+
+      return NextResponse.json({ message: "OTP verified successfully! Signup complete." }, { status: 200, headers: corsHeaders });
+    // }
+
+    // return NextResponse.json({ message: "Invalid OTP" }, { status: 400, headers: corsHeaders });
   } catch (error) {
     return NextResponse.json({ message: `Error verifying OTP` }, { status: 500, headers: corsHeaders });
   }

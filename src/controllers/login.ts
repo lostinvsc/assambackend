@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/user";
 import twilio from "twilio";
-import Redis from "ioredis";
+// import Redis from "ioredis";
 
-const redis = new Redis(process.env.REDIS_URL||"redis://localhost:6379");
+// const redis = new Redis(process.env.REDIS_URL||"redis://localhost:6379");
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
@@ -40,12 +40,13 @@ export const loginPhone = async (req: Request): Promise<NextResponse> => {
       const otp = generateOTP();
 
       const formattedPhone = `+91${phone}`;
-      await redis.setex(formattedPhone, 300, otp);
-      await client.messages.create({
-        body: `Your OTP code is: ${otp}`,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: formattedPhone,
-      });
+      // await redis.setex(formattedPhone, 300, otp);
+      console.log(otp)
+      // await client.messages.create({
+      //   body: `Your OTP code is: ${otp}`,
+      //   from: process.env.TWILIO_PHONE_NUMBER,
+      //   to: formattedPhone,
+      // });
 
       // console.log(otp)
 
@@ -77,16 +78,16 @@ export const verifyPhone = async (req: Request) => {
  
 
     if (!phone || !otp) return NextResponse.json({ message: "Phone and OTP are required" }, { status: 400, headers: corsHeaders });
-    const storedOTP = await redis.get(formattedPhone);
+    // const storedOTP = await redis.get(formattedPhone);
 
-    if ( storedOTP == otp) {
+    // if ( storedOTP == otp) {
       
       const token = `token-${formattedPhone}-${Date.now()}`;
 
     const user=await User.findOne({phone});
     if(user){
       return NextResponse.json({ message: "OTP verified successfully! Signup complete.",token,user:user }, { status: 200, headers: corsHeaders });
-    }
+    // }
     return NextResponse.json({ message: "User doesnt exist" }, { status: 400, headers: corsHeaders });
 
     }
