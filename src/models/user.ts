@@ -3,8 +3,10 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 interface IUser extends Document {
   phone: string;
-  username: string;
+  name: string;
+  email:string;
   password: string;
+  approve:boolean;
 }
 
 // Mongoose Schema
@@ -16,14 +18,23 @@ const UserSchema = new Schema<IUser>(
       unique: true,
       match: /^[0-9]{10}$/, 
     },
-    username: {
+    name: {
+      type: String,
+      required: true,
+    },
+    email:{
       type: String,
       unique: true,
-      trim: true,
+      required: true,
     },
     password: {
       type: String,
       minlength: 6,
+      required: true,
+    },
+    approve: {
+      type: Boolean,
+      default:false
     },
   },
   { timestamps: true }

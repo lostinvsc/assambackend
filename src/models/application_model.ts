@@ -31,7 +31,7 @@ interface IApplication extends Document {
   remarks?: string;
   documenturl?: string;
   status: StatusType;
-  notification: boolean;
+  uploaded_by:String;
 }
 
 // Mongoose Schema
@@ -62,7 +62,7 @@ const ApplicationSchema = new Schema<IApplication>(
       default: "",
     },
     status: { type: String, enum: STATUS_OPTIONS, default: "Pending" },
-    notification: { type: Boolean, default: true },
+    uploaded_by:{type:String}
   },
   { timestamps: true }
 );

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://admin:pass@cluster0.0sets.mongodb.net/";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/assam";
 
 
 export const connectDB = async () => {
