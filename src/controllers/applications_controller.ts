@@ -10,7 +10,8 @@ const corsHeaders = {
 };
 
 // Handle CORS Preflight Requests
-const handleOptionsRequest = () => new NextResponse(null, { status: 204, headers: corsHeaders });
+const handleOptionsRequest = () =>
+  new NextResponse(null, { status: 204, headers: corsHeaders });
 
 // Create Application
 export const createApplication = async (req: NextRequest): Promise<NextResponse> => {
@@ -18,15 +19,57 @@ export const createApplication = async (req: NextRequest): Promise<NextResponse>
 
   try {
     await connectDB();
-    
-    const body = await req.json(); // Fix: Await the JSON parsing
 
-    // Validate required fields (Add field validation if necessary)
+    const body = await req.json();
 
-    const newApplication = await Application.create(body); // Fix: Pass `body` directly
+    // Validate required fields
+    const {
+      fullName,
+      age,
+      contactNumber,
+      gender,
+      district,
+      revenueCircle,
+      category,
+      villageWard,
+      remarks,
+      documentUrl,
+
+    } = body;
+
+    if (
+      !fullName ||
+      !age ||
+      !contactNumber ||
+      !gender ||
+      !district ||
+      !revenueCircle ||
+      !category ||
+      !villageWard
+    ) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    // Create application
+    const newApplication = await Application.create({
+      fullName,
+      age,
+      contactNumber,
+      gender,
+      district,
+      revenueCircle,
+      category,
+      villageWard,
+      remarks,
+      documentUrl,
+ 
+    });
 
     return NextResponse.json(
-      { message: "Application submitted", data: newApplication },
+      { message: "Application submitted successfully", data: newApplication },
       { status: 201, headers: corsHeaders }
     );
   } catch (error) {
@@ -38,13 +81,18 @@ export const createApplication = async (req: NextRequest): Promise<NextResponse>
 };
 
 // Get All Applications
-export const getApplications = async (req: NextRequest): Promise<NextResponse> => { // Fix: Accept `req` parameter
-  if (req.method === "OPTIONS") return handleOptionsRequest(); // Fix: Ensure OPTIONS request is handled
+export const getApplications = async (req: NextRequest): Promise<NextResponse> => {
+  if (req.method === "OPTIONS") return handleOptionsRequest();
 
   try {
     await connectDB();
+
     const applications = await Application.find();
-    return NextResponse.json({ data: applications }, { status: 200, headers: corsHeaders });
+
+    return NextResponse.json(
+      { data: applications },
+      { status: 200, headers: corsHeaders }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: "Internal Server Error", details: (error as Error).message },
@@ -59,7 +107,8 @@ export const updateApplicationStatus = async (req: NextRequest): Promise<NextRes
 
   try {
     await connectDB();
-    const { applicationId, status } = await req.json(); // Fix: Await JSON parsing
+
+    const { applicationId, status } = await req.json();
 
     if (!applicationId || !status) {
       return NextResponse.json(
@@ -68,6 +117,7 @@ export const updateApplicationStatus = async (req: NextRequest): Promise<NextRes
       );
     }
 
+    // Update status
     const updatedApplication = await Application.findByIdAndUpdate(
       applicationId,
       { status },

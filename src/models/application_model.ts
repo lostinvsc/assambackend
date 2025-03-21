@@ -15,23 +15,22 @@ const STATUS_OPTIONS = ["Pending", "Approved", "Rejected"] as const;
 
 type CategoryType = (typeof CATEGORY_OPTIONS)[number];
 type StatusType = (typeof STATUS_OPTIONS)[number];
-
-type AreaType = "Village" | "Town" | "Tehsil" | "Development Block";
+type AreaType = "Village" | "Ward";
 type GenderType = "Male" | "Female" | "Other";
 
 interface IApplication extends Document {
   fullName: string;
   age: number;
-  phoneNo: string;
+  contactNumber: string;
   gender: GenderType;
-  occupation: string;
-  address: string;
+  district: string;
+  revenueCircle: string;
   category: CategoryType;
-  area: AreaType;
+  villageWard: AreaType;
   remarks?: string;
-  documenturl?: string;
+  documentUrl?: string;
   status: StatusType;
-  uploaded_by:String;
+
 }
 
 // Mongoose Schema
@@ -39,30 +38,29 @@ const ApplicationSchema = new Schema<IApplication>(
   {
     fullName: { type: String, required: true },
     age: { type: Number, required: true },
-    phoneNo: { 
-      type: String, 
-      required: true, 
-      match: [/^\d{10}$/, "Invalid phone number format (must be 10 digits)"] 
-    },
-    gender: { type: String, required: true, enum: ["Male", "Female", "Other"] },
-    occupation: { type: String, required: true },
-    address: { type: String, required: true },
-    category: { type: String, required: true, enum: CATEGORY_OPTIONS },
-    area: { type: String, required: true, enum: ["Village", "Town", "Tehsil", "Development Block"] },
-    remarks: { type: String, required: false },  // Explicitly set as optional
-    documenturl: { 
+    contactNumber: {
       type: String,
-      required: false, // Explicitly set as optional
+      required: true,
+      match: [/^\d{10}$/, "Invalid contact number format (must be 10 digits)"],
+    },
+    gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
+    district: { type: String, required: true },
+    revenueCircle: { type: String, required: true },
+    category: { type: String, required: true, enum: CATEGORY_OPTIONS },
+    villageWard: { type: String, required: true, enum: ["Village", "Ward"] },
+    remarks: { type: String },
+    documentUrl: {
+      type: String,
       validate: {
         validator: function (v: string) {
-          return !v || /^(https?:\/\/.*\.(?:png|jpg|jpeg|pdf|docx?))$/i.test(v); 
+          return !v || /^(https?:\/\/.*\.(?:png|jpg|jpeg|pdf|docx?))$/i.test(v);
         },
         message: "Invalid document URL format",
       },
       default: "",
     },
     status: { type: String, enum: STATUS_OPTIONS, default: "Pending" },
-    uploaded_by:{type:String}
+    
   },
   { timestamps: true }
 );

@@ -18,9 +18,9 @@ export const createContact = async (req: Request): Promise<NextResponse> => {
     }
 
     await connectDB();
-    const { fullName, email, message } = await req.json();
+    const { fullName,contactNumber, email, message } = await req.json();
 
-    if (!fullName || !email || !message) {
+    if (!fullName ||!contactNumber|| !email || !message) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400, headers: corsHeaders }
@@ -36,7 +36,7 @@ export const createContact = async (req: Request): Promise<NextResponse> => {
       );
     }
 
-    const newContact = new Contact({ fullName, email, message });
+    const newContact = new Contact({ fullName, email,contactNumber, message });
     await newContact.save();
 
     return NextResponse.json(

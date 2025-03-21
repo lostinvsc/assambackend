@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,9 +31,6 @@ export async function POST(req: NextRequest) {
     // Generate JWT Token
     const token = jwt.sign({ role: "admin", username: adminUsername }, jwtSecret);
     
-
-    // const hash = bcrypt.hashSync("assamofficepassword", 10);
-    // console.log(hash); // Store this hash in your .env file
     
     return NextResponse.json({ message: "Login successful",token }, { status: 200 });
   } catch (error) {

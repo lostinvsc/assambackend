@@ -1,46 +1,37 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import { Schema, model, models, Document } from "mongoose";
 
-
+// TypeScript Interface for User
 interface IUser extends Document {
-  phone: string;
-  name: string;
-  email:string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  contactNumber: string;
+  email: string;
+  userId: string;
+  age?: number;
+  gender?: "Male" | "Female" | "Other";
   password: string;
-  approve:boolean;
+  verified: boolean;
 }
 
-// Mongoose Schema
-const UserSchema = new Schema<IUser>(
+// Schema Definition
+const userSchema = new Schema<IUser>(
   {
-    phone: {
-      type: String,
-      required: true,
-      unique: true,
-      match: /^[0-9]{10}$/, 
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    email:{
-      type: String,
-      unique: true,
-      required: true,
-    },
-    password: {
-      type: String,
-      minlength: 6,
-      required: true,
-    },
-    approve: {
-      type: Boolean,
-      default:false
-    },
+    firstName: { type: String, required: true },
+    middleName: { type: String },
+    lastName: { type: String, required: true },
+    contactNumber: { type: String, unique: true, sparse: true },
+    email: { type: String, required: true, unique: true },
+    userId: { type: String, required: true, unique: true },
+    age: { type: Number },
+    gender: { type: String, enum: ["Male", "Female", "Other"] },
+    password: { type: String, required: true },
+    verified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-
-const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+// Create or get existing model
+const User = models.User || model<IUser>("User", userSchema);
 
 export default User;

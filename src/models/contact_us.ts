@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 interface IContact extends Document {
   fullName: string;
   email: string;
+  contactNumber:string;
   message: string;
 }
 
@@ -10,6 +11,7 @@ interface IContact extends Document {
 const ContactSchema = new Schema<IContact>(
   {
     fullName: { type: String, required: true },
+    contactNumber:{type:String,required:true},
     email: { 
       type: String, 
       required: true, 

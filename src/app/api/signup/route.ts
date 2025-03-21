@@ -5,7 +5,7 @@ import User from "@/models/user";
 
 // CORS Headers
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*", // Change in production
+  "Access-Control-Allow-Origin": "*", // Change this to specific origin in production
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
@@ -20,17 +20,44 @@ export async function POST(req: NextRequest) {
   await connectDB(); // Connect to MongoDB
 
   try {
-    const { phone, name, email, password } = await req.json(); // ✅ Correct way to get JSON body
+    const {
+      firstName,
+      middleName,
+      lastName,
+      contactNumber,
+      email,
+      userId,
+      age,
+      gender,
+      password,
+    } = await req.json();
 
     // Validate required fields
-    if (!phone || !name || !email || !password) {
-      return NextResponse.json({ error: "All fields are required." }, { status: 400 });
+    if (
+      !firstName ||
+      !lastName ||
+      !contactNumber ||
+      !email ||
+      !userId ||
+      !password||
+      !gender||
+      !age
+    ) {
+      return NextResponse.json(
+        { error: "All required fields must be provided." },
+        { status: 400 }
+      );
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    // Ensure email and userId are unique
+    const existingUser = await User.findOne({
+      $or: [{ email }, { userId }],
+    });
     if (existingUser) {
-      return NextResponse.json({ error: "User already exists with this email." }, { status: 400 });
+      return NextResponse.json(
+        { error: "User with this email or userId already exists." },
+        { status: 400 }
+      );
     }
 
     // Hash password
@@ -38,17 +65,28 @@ export async function POST(req: NextRequest) {
 
     // Create new user
     const newUser = new User({
-      phone,
-      name,
+      firstName,
+      middleName,
+      lastName,
+      contactNumber,
       email,
+      userId,
+      age,
+      gender,
       password: hashedPassword,
     });
 
     await newUser.save();
 
-    return NextResponse.json({ message: "User created successfully" }, { status: 201 });
+    return NextResponse.json(
+      { message: "User created successfully" },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Signup error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

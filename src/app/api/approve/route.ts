@@ -17,7 +17,7 @@ export async function PATCH(req: NextRequest) {
     // Find and update the user
     const updatedUser = await User.findByIdAndUpdate(
       _id,
-      { approve: true },
+      { verified: true },
       { new: true, runValidators: true } // Return updated user and run validation
     ).select("-password"); // Exclude password
 
