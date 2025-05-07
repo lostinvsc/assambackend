@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Notification from "@/models/Notification";
+import Notification from "@/models/Notification"; // Fix import path
 
 // Helper function to add CORS headers
 function corsHeaders(response: NextResponse) {
@@ -23,7 +23,19 @@ export async function POST(request: Request) {
   try {
     await connectDB();
     
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      console.error("Error parsing JSON:", error); 
+      return corsHeaders(
+        NextResponse.json(
+          { error: "Invalid JSON body" },
+          { status: 400 }
+        )
+      );
+    }
+    
     const { title, content } = body;
     
     // Validate request body
@@ -42,9 +54,12 @@ export async function POST(request: Request) {
       content,
     });
     
+    // Add console log for successful notification creation
+    console.log("Notification created successfully:", notification);
+    
     return corsHeaders(
       NextResponse.json(
-        { message: "Notification created successfully", notification },
+        { status: "success", message: "Notification created successfully", notification },
         { status: 201 }
       )
     );
