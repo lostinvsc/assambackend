@@ -28,6 +28,7 @@ interface IApplication extends Document {
   category: CategoryType;
   villageWard: AreaType;
   remarks?: string;
+  createdBy: string;
   documentUrl?: string;
   status: StatusType;
 
@@ -49,6 +50,7 @@ const ApplicationSchema = new Schema<IApplication>(
     category: { type: String, required: true, enum: CATEGORY_OPTIONS },
     villageWard: { type: String, required: true, enum: ["Village", "Ward"] },
     remarks: { type: String },
+    createdBy:{type:String},
     documentUrl: {
       type: String,
       validate: {
