@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Application from "@/models/application_model";
+import User from "@/models/user";
 
 // CORS Headers
 const corsHeaders = {
@@ -34,6 +35,7 @@ export const createApplication = async (req: NextRequest): Promise<NextResponse>
       villageWard,
       remarks,
       documentUrl,
+      createdBy
 
     } = body;
 
@@ -45,7 +47,8 @@ export const createApplication = async (req: NextRequest): Promise<NextResponse>
       !district ||
       !revenueCircle ||
       !category ||
-      !villageWard
+      !villageWard||
+      !createdBy
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -65,6 +68,7 @@ export const createApplication = async (req: NextRequest): Promise<NextResponse>
       villageWard,
       remarks,
       documentUrl,
+      createdBy
  
     });
 
@@ -100,6 +104,7 @@ export const getApplications = async (req: NextRequest): Promise<NextResponse> =
     );
   }
 };
+
 
 // Get getApplicationsByUserId 
 export const getApplicationsByUserId = async (req: NextRequest): Promise<NextResponse> => {
@@ -145,6 +150,7 @@ export const getApplicationsByUserId = async (req: NextRequest): Promise<NextRes
     );
   }
 };
+
 
 // Update Application Status
 export const updateApplicationStatus = async (req: NextRequest): Promise<NextResponse> => {
